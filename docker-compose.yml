@@ -1,0 +1,49 @@
+version: '2'
+networks:
+  promkafka:
+services:
+  prom_kafka:
+    ports:
+      - 6501:6501
+    networks:
+      - promkafka
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/code
+    depends_on:
+      - zookeeper
+      - kafka
+    environment:
+      PORT: "6501"
+      ZOOKEEPERS: zookeeper:2181
+      KAFKA_PATH: ""
+
+  zookeeper:
+    networks:
+      - promkafka
+    image: zookeeper:3.4.6
+
+  kafka:
+    networks:
+      - promkafka
+    image: ches/kafka:0.10.1.0
+    depends_on:
+      - zookeeper
+    environment:
+      - KAFKA_ADVERTISED_HOST_NAME=kafka
+      - ZOOKEEPER_IP=zookeeper
+      - KAFKA_PORT=9092
+      - KAFKA_ADVERTISED_PORT=9092
+    extra_hosts:
+      - "kafka:127.0.0.1"
+
+  createtopics:
+    networks:
+      - promkafka
+    image: ches/kafka:0.10.1.0
+    depends_on:
+      - kafka
+      - zookeeper
+    command: kafka-topics.sh --create --topic test --replication-factor 1 --partitions 5 --zookeeper zookeeper:2181
