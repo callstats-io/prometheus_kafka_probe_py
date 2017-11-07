@@ -4,7 +4,7 @@ networks:
 services:
   prom_kafka:
     ports:
-      - 6501:6501
+      - 9399:9399
     networks:
       - promkafka
     build:
@@ -16,14 +16,15 @@ services:
       - zookeeper
       - kafka
     environment:
-      PORT: "6501"
+      PORT: "9399"
       ZOOKEEPERS: zookeeper:2181
-      KAFKA_PATH: ""
 
   zookeeper:
+    image: jplock/zookeeper:3.4.6
+    ports:
+      - "2181"
     networks:
       - promkafka
-    image: zookeeper:3.4.6
 
   kafka:
     networks:

@@ -1,2 +1,4 @@
 kazoo==2.4.0
 pykafka==2.6.0
+Flask==0.12.2
+prometheus_client

@@ -7,7 +7,7 @@ This application exposes the (topic, partition, offset) triple via HTTP endpoint
 
 | Metric        | Type  | Description     |
 | -----------   | ----- | --------------- |
-| offset        | Gauge | latest available Offset |
+| kafka_offset  | Gauge | latest available Offset |
 
 Following labels are automatically added
 
@@ -15,8 +15,8 @@ Following labels are automatically added
 
 | Label       | Description        |
 | ----------- | ---------------    |
-| topic       | Name of the topic  |
 | service     | Always `broker`    |
+| topic       | Name of the topic  |
 | partition   | Partition number   |
 
 Other labels (e.g. environment, cluster_name, etc) should be added at higher level
@@ -29,4 +29,3 @@ Application reads configuration from following environment variables
 | ---------- | ----------------------------------- |
 | PORT       | HTTP port to listen to              |
 | ZOOKEEPERS | Comma separated list of Zookeepers  |
-| KAFKAPATH  | Path to find kafka brokers in the Zookeeper      |
