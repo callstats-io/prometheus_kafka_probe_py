@@ -8,8 +8,9 @@ This application exposes the (topic, partition, offset) triple via HTTP endpoint
 | Metric        | Type  | Description     |
 | -----------   | ----- | --------------- |
 | kafka_offset  | Gauge | latest available Offset |
+| cg_kafka_offset| Gauge | consumer group offsets |
 
-Following labels are automatically added
+Following labels are added
 
 ### Labels
 
@@ -18,6 +19,7 @@ Following labels are automatically added
 | service     | Always `broker`    |
 | topic       | Name of the topic  |
 | partition   | Partition number   |
+| consumergroup | name of the consumer group |
 
 Other labels (e.g. environment, cluster_name, etc) should be added at higher level
 
@@ -28,4 +30,6 @@ Application reads configuration from following environment variables
 | Name       | Description                         |
 | ---------- | ----------------------------------- |
 | PORT       | HTTP port to listen to              |
-| ZOOKEEPERS | Comma separated list of Zookeepers  |
+| KAFKAHOSTS | Comma separated list of kafka broker hosts  |
+| TOPICS     | Comma separated list of topics to scrape |
+| CONSUMERGROUPS | a json string specifying the topic and the list of consumer groups |
