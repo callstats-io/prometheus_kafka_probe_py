@@ -6,8 +6,8 @@ import pykafka
 LOGGER = logging.getLogger(__name__)
 
 class KafkaHelper:
-    def __init__(self, kafka_hosts, broker_version='0.9.0'):
-        self.client = pykafka.KafkaClient(hosts=kafka_hosts, broker_version=broker_version)
+    def __init__(self, kafka_hosts):
+        self.client = pykafka.KafkaClient(hosts=kafka_hosts)
 
     def getOffsetInfo(self, topicName=None):
         '''

@@ -32,4 +32,4 @@ Application reads configuration from following environment variables
 | PORT       | HTTP port to listen to              |
 | KAFKAHOSTS | Comma separated list of kafka broker hosts  |
 | TOPICS     | Comma separated list of topics to scrape |
-| CONSUMERGROUPS | a json string specifying the topic and the list of consumer groups |
+| CONSUMERGROUPS | a json representation the topic and consumer group names. e.g. '{"topic_1": ["cg1"], "topic_2", ["cg1", "cg2"]}' |
