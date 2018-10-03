@@ -13,11 +13,11 @@ services:
     volumes:
       - .:/code
     depends_on:
-      - zookeeper
       - kafka
     environment:
       PORT: "9399"
-      ZOOKEEPERS: zookeeper:2181
+      KAFKAHOSTS: "kafka:9092"
+      CONSUMERGROUPS: '{"test": ["test_cg"]}'
 
   zookeeper:
     image: jplock/zookeeper:3.4.6

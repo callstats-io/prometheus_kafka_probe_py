@@ -2,11 +2,12 @@ from __future__ import print_function
 
 import logging
 import pykafka
+
 LOGGER = logging.getLogger(__name__)
 
 class KafkaHelper:
-    def __init__(self, zookeeper_host, broker_version='0.9.0'):
-        self.client = pykafka.KafkaClient(zookeeper_hosts=zookeeper_host, broker_version=broker_version)
+    def __init__(self, kafka_hosts):
+        self.client = pykafka.KafkaClient(hosts=kafka_hosts)
 
     def getOffsetInfo(self, topicName=None):
         '''
@@ -48,3 +49,21 @@ class KafkaHelper:
 
         return latestOffsets
 
+
+    def getConsumerGroupOffsets(self, topicName, consumerGroupName):
+        '''
+        returns the consumer group offset info in the form of a dictionary: {partition_id: offset)
+        '''
+        topic = self.client.topics[topicName]
+        consumer = topic.get_simple_consumer(consumer_group=consumerGroupName,
+                                             auto_start=False,
+                                             reset_offset_on_fetch=False)
+        current_offsets = consumer.fetch_offsets()
+        #filter out consumer group offsets of '-1'
+        consumerGroupOffsetInfo={}
+
+        for p_id, res in current_offsets:
+            if res.offset >=0:
+                consumerGroupOffsetInfo[p_id] = res.offset
+
+        return consumerGroupOffsetInfo
