@@ -18,7 +18,8 @@ producerOffsetTracker = Gauge('kafka_offset', 'the latest available offsets', ['
 consumerGroupOffsetTracker = Gauge('cg_kafka_offset', 'the consumer group offsets', ['service', 'topic', 'partition', 'consumergroup'], registry=registry)
 
 offset_info = {}
-kafka_hosts = "localhost:9092"
+#kafka_hosts = "localhost:9092"
+kafka_hosts = "c1-26-usab1-kafka-1.oracle.callstats.io:9092"
 client = pykafka.KafkaClient(hosts=kafka_hosts)
 topic_names = client.topics.keys()
 cgOffsetsInfo_list = []
@@ -62,7 +63,7 @@ async def run_main():
 @app.route('/internal/metrics')
 def getKafkaOffset():
     # fetch the latest available offsets from kafka and return the metrics
-    kafka_hosts = "localhost:9092"
+    kafka_hosts = "c1-26-usab1-kafka-1.oracle.callstats.io:9092"
     #kafka_helper = helper.KafkaHelper(kafka_hosts)
     topic_offset_info = getLatestOffset()
     #LOGGER.info(topic_offset_info)
