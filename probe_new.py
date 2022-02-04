@@ -6,6 +6,7 @@ from prometheus_client import Gauge, CollectorRegistry, generate_latest
 import json
 import pykafka
 import logging
+import os
 
 LOGGER = logging.getLogger(__name__)
 
@@ -217,9 +218,13 @@ async def getConsumerGroupOffsets(topicName, consumerGroupName):
 
     cgOffsetsInfo_list.append(consumerGroupOffsetInfo)
 
+def readEnvConfig(env_var_name, default=""):
+    env_var_val = os.environ.get(env_var_name, default)
+    return env_var_val.strip()
+
 def main():
     # start the http server
-    listeningPort = 8080
+    listeningPort = readEnvConfig("PORT", default="8080")
     print("listening on port {}".format(listeningPort))
 
     app.run(host='0.0.0.0', port=int(listeningPort))
