@@ -78,19 +78,19 @@ def getKafkaOffset():
                     offsetInfo['offset'])
 
                 # # check consumer group offsets
-            consumerGroupListJsonStr = "{\"ConferenceBackbone\": [\"dataprocessor_rra_001\"],\"NetworkBackbone\": [\"dataprocessor_rra_001\",\"network-data-monitoring\"],\"AppAnalyzer\": [\"appanalyzer_001\",\"confclassifier_001\",\"confaggregation_001\"],\"ConferenceImportRequest\":[\"eventWriter-group\"],\"payment_conference_data_usage\":[\"payment-service-data-point-consumer\"], \"conference-event-obfuscated\": [\"conference-event-obfuscated-to-storage-monitoring-oci\"]}"
-            if consumerGroupListJsonStr:
-                consumerGroupsToCheck = json.loads(consumerGroupListJsonStr)
-                print(consumerGroupsToCheck)
-                # go through the list of (consumergroup: topic)
-                cg = createCGAsync(consumerGroupsToCheck)
-                # for topicName, cgNames in consumerGroupsToCheck.items():
-                #    for cgName in cgNames:
-                #        cgOffsetsInfo = getConsumerGroupOffsets(topicName, cgName)
-                #        for partition_id, offset in cgOffsetsInfo.items():
-                #            consumerGroupOffsetTracker.labels('broker', topicName, partition_id, cgName).set(offset)
+    consumerGroupListJsonStr = "{\"ConferenceBackbone\": [\"dataprocessor_rra_001\"],\"NetworkBackbone\": [\"dataprocessor_rra_001\",\"network-data-monitoring\"],\"AppAnalyzer\": [\"appanalyzer_001\",\"confclassifier_001\",\"confaggregation_001\"],\"ConferenceImportRequest\":[\"eventWriter-group\"],\"payment_conference_data_usage\":[\"payment-service-data-point-consumer\"], \"conference-event-obfuscated\": [\"conference-event-obfuscated-to-storage-monitoring-oci\"]}"
+    if consumerGroupListJsonStr:
+        consumerGroupsToCheck = json.loads(consumerGroupListJsonStr)
+        print(consumerGroupsToCheck)
+        # go through the list of (consumergroup: topic)
+        cg = createCGAsync(consumerGroupsToCheck)
+        # for topicName, cgNames in consumerGroupsToCheck.items():
+        #    for cgName in cgNames:
+        #        cgOffsetsInfo = getConsumerGroupOffsets(topicName, cgName)
+        #        for partition_id, offset in cgOffsetsInfo.items():
+        #            consumerGroupOffsetTracker.labels('broker', topicName, partition_id, cgName).set(offset)
 
-            return generate_latest(registry)
+    return generate_latest(registry)
 
 def createCGAsync(consumerGroupsToCheck):
     tasks_cg = []
@@ -102,10 +102,10 @@ def createCGAsync(consumerGroupsToCheck):
     asyncio.set_event_loop(loop)
     loop.run_until_complete(asyncio.gather(*tasks_cg))
     loop.close()
-
-    for cgOffsetsInfo in cgOffsetsInfo_list:
-        for partition_id, offset in cgOffsetsInfo.items():
-            consumerGroupOffsetTracker.labels('broker', topicName, partition_id, cgName).set(offset)
+    print(cgOffsetsInfo_list)
+    # for cgOffsetsInfo in cgOffsetsInfo_list:
+    #     for partition_id, offset in cgOffsetsInfo.items():
+    #         consumerGroupOffsetTracker.labels('broker', topicName, partition_id, cgName).set(offset)
 
     return "ok"
 
@@ -146,29 +146,29 @@ def getOffsetInfo(topicName=None):
         else:
             topic_names = [topicName]
 
-        tasks = []
+    tasks = []
 
-        for topic_name in topic_names:
-            tasks.append(getOffset(topic_name))
+    for topic_name in topic_names:
+        tasks.append(getOffset(topic_name))
 
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(asyncio.gather(*tasks))
-        loop.close()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(asyncio.gather(*tasks))
+    loop.close()
 
-        # loop.run_until_complete(createAsyncTasks(topic_names))
-        # loop.close()
-        # return results in the form of a dictionary where keys are topic_name and values are the partition_num, offset info
-        # offset_info = {}
+    # loop.run_until_complete(createAsyncTasks(topic_names))
+    # loop.close()
+    # return results in the form of a dictionary where keys are topic_name and values are the partition_num, offset info
+    # offset_info = {}
 
-        # for topic_name in topic_names:
-        #     earliest_offsets = self.client.topics[topic_name].earliest_available_offsets()
-        #     latest_offsets = self.client.topics[topic_name].latest_available_offsets()
-        #     offset_info[topic_name] = {'earliest': earliest_offsets, 'latest': latest_offsets}
-        # for task in tasks:
-        #     await task
-        # loop.close()
-        return offset_info
+    # for topic_name in topic_names:
+    #     earliest_offsets = self.client.topics[topic_name].earliest_available_offsets()
+    #     latest_offsets = self.client.topics[topic_name].latest_available_offsets()
+    #     offset_info[topic_name] = {'earliest': earliest_offsets, 'latest': latest_offsets}
+    # for task in tasks:
+    #     await task
+    # loop.close()
+    return offset_info
 
 async def getOffset(topic_name):
     try:
@@ -211,6 +211,9 @@ async def getConsumerGroupOffsets(topicName, consumerGroupName):
     for p_id, res in current_offsets:
         if res.offset >= 0:
             consumerGroupOffsetInfo[p_id] = res.offset
+
+    for partition_id, offset in consumerGroupOffsetInfo.items():
+        consumerGroupOffsetTracker.labels('broker', topicName, partition_id, consumerGroupName).set(offset)
 
     cgOffsetsInfo_list.append(consumerGroupOffsetInfo)
 
