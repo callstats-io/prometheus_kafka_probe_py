@@ -175,7 +175,7 @@ async def getOffset(topic_name):
     try:
         earliest_offsets = client.topics[topic_name].earliest_available_offsets()
         latest_offsets = client.topics[topic_name].latest_available_offsets()
-        offset_info[topic_name] = {'earliest': earliest_offsets, 'latest': latest_offsets}
+        offset_info[str(topic_name,'utf-8')] = {'earliest': earliest_offsets, 'latest': latest_offsets}
     except Exception:
         pass
 
