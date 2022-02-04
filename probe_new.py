@@ -79,7 +79,7 @@ def getKafkaOffset():
                     offsetInfo['offset'])
 
                 # # check consumer group offsets
-    consumerGroupListJsonStr = "{\"ConferenceBackbone\": [\"dataprocessor_rra_001\"],\"NetworkBackbone\": [\"dataprocessor_rra_001\",\"network-data-monitoring\"],\"AppAnalyzer\": [\"appanalyzer_001\",\"confclassifier_001\",\"confaggregation_001\"],\"ConferenceImportRequest\":[\"eventWriter-group\"],\"payment_conference_data_usage\":[\"payment-service-data-point-consumer\"], \"conference-event-obfuscated\": [\"conference-event-obfuscated-to-storage-monitoring-oci\"]}"
+    consumerGroupListJsonStr = readEnvConfig("CONSUMERGROUPS")
     if consumerGroupListJsonStr:
         consumerGroupsToCheck = json.loads(consumerGroupListJsonStr)
         print(consumerGroupsToCheck)
