@@ -69,8 +69,8 @@ def getKafkaOffset():
     #LOGGER.info(topic_offset_info)
     if topic_offset_info:
         for offsetInfo in topic_offset_info:
-            if offsetInfo['offset'] > 0:                
-		producerOffsetTracker.labels('broker', offsetInfo['topic'], offsetInfo['partition']).set(offsetInfo['offset'])
+            if offsetInfo['offset'] > 0:
+                producerOffsetTracker.labels('broker', offsetInfo['topic'], offsetInfo['partition']).set(offsetInfo['offset'])
 
     # # check consumer group offsets
         consumerGroupListJsonStr="{\"ConferenceBackbone\": [\"dataprocessor_rra_001\"],\"NetworkBackbone\": [\"dataprocessor_rra_001\",\"network-data-monitoring\"],\"AppAnalyzer\": [\"appanalyzer_001\",\"confclassifier_001\",\"confaggregation_001\"],\"ConferenceImportRequest\":[\"eventWriter-group\"],\"payment_conference_data_usage\":[\"payment-service-data-point-consumer\"], \"conference-event-obfuscated\": [\"conference-event-obfuscated-to-storage-monitoring-oci\"]}"
@@ -185,7 +185,5 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-                                                                                                                                                                                                                                            225,0-1       Bot
 
 
