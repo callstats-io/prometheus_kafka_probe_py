@@ -219,7 +219,7 @@ async def getConsumerGroupOffsets(topicName, consumerGroupName):
 
 def main():
     # start the http server
-    listeningPort = 8081
+    listeningPort = 8080
     print("listening on port {}".format(listeningPort))
 
     app.run(host='0.0.0.0', port=int(listeningPort))
