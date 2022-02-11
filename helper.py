@@ -2,8 +2,15 @@ from __future__ import print_function
 
 import logging
 import pykafka
+import asyncio
+from prometheus_client import Gauge, CollectorRegistry, generate_latest
+
 
 LOGGER = logging.getLogger(__name__)
+offset_info = {}
+registry = CollectorRegistry()
+consumerGroupOffsetTracker = Gauge('cg_kafka_offset', 'the consumer group offsets',
+                                   ['service', 'topic', 'partition', 'consumergroup'], registry=registry)
 
 class KafkaHelper:
     def __init__(self, kafka_hosts):
@@ -15,7 +22,12 @@ class KafkaHelper:
         '''
 
         # default is to get offset info for all topics
+        # print(client.topics.keys())
         topic_names = self.client.topics.keys()
+        #    loop = asyncio.new_event_loop()
+        # asyncio.set_event_loop(loop)
+        # loop = asyncio.get_event_loop()
+
         if topicName:
             if topicName not in topic_names:
                 LOGGER.error("Topic '{}' does not exist".format(topicName))
@@ -23,17 +35,27 @@ class KafkaHelper:
             else:
                 topic_names = [topicName]
 
-        # return results in the form of a dictionary where keys are topic_name and values are the partition_num, offset info
-        offset_info = {}
+        tasks = []
 
         for topic_name in topic_names:
-            earliest_offsets = self.client.topics[topic_name].earliest_available_offsets()
-            latest_offsets = self.client.topics[topic_name].latest_available_offsets()
-            offset_info[topic_name] = {'earliest': earliest_offsets, 'latest': latest_offsets}
+            tasks.append(self.getOffset(topic_name))
+
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(asyncio.gather(*tasks))
+        loop.close()
 
         return offset_info
 
-    def getLatestOffset(self, topicName=None):
+    async def getOffset(self,topic_name):
+        try:
+            earliest_offsets = self.client.topics[topic_name].earliest_available_offsets()
+            latest_offsets = self.client.topics[topic_name].latest_available_offsets()
+            offset_info[str(topic_name, 'utf-8')] = {'earliest': earliest_offsets, 'latest': latest_offsets}
+        except Exception:
+            pass
+
+    def getLatestOffset(self,topicName=None):
         offset_info = self.getOffsetInfo(topicName)
         if not offset_info:
             return None
@@ -41,29 +63,12 @@ class KafkaHelper:
         # return the (topic, partition, offset) tuple
         latestOffsets = []
         for topicName in offset_info.keys():
+
             latestOffsetInfo = offset_info[topicName]['latest']
-            for partition in  latestOffsetInfo:
+            for partition in latestOffsetInfo:
                 offsetPartitionResponse = latestOffsetInfo[partition]
                 # LOGGER.info(offsetPartitionResponse)
-                latestOffsets.append({'topic': topicName, 'partition': partition, 'offset': offsetPartitionResponse.offset[0]})
+                latestOffsets.append(
+                    {'topic': topicName, 'partition': partition, 'offset': offsetPartitionResponse.offset[0]})
 
         return latestOffsets
-
-
-    def getConsumerGroupOffsets(self, topicName, consumerGroupName):
-        '''
-        returns the consumer group offset info in the form of a dictionary: {partition_id: offset)
-        '''
-        topic = self.client.topics[topicName]
-        consumer = topic.get_simple_consumer(consumer_group=consumerGroupName,
-                                             auto_start=False,
-                                             reset_offset_on_fetch=False)
-        current_offsets = consumer.fetch_offsets()
-        #filter out consumer group offsets of '-1'
-        consumerGroupOffsetInfo={}
-
-        for p_id, res in current_offsets:
-            if res.offset >=0:
-                consumerGroupOffsetInfo[p_id] = res.offset
-
-        return consumerGroupOffsetInfo

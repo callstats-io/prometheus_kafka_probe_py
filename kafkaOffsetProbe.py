@@ -97,7 +97,6 @@ def getOffsetInfo(topicName=None):
     '''
 
     # default is to get offset info for all topics
-    # print(client.topics.keys())
     topic_names = client.topics.keys()
     #    loop = asyncio.new_event_loop()
     # asyncio.set_event_loop(loop)
